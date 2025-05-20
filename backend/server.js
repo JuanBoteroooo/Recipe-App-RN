@@ -10,7 +10,7 @@ const groupRoutes = require('./routes/groups');
 const userRoutes = require('./routes/users');
 
 // Conexión a MongoDB
-const mongoURI = process.env.MONGO_URI || "mongodb+srv://luismariojaraba:oN5aIepQcaY13d7G@cluster0.ovhmq.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0";
+const mongoURI = process.env.MONGO_URI;
 mongoose.connect(mongoURI, {
   useNewUrlParser: true,
   useUnifiedTopology: true
@@ -65,42 +65,41 @@ app.post('/api/login', async (req, res) => {
 });
 
 app.post('/api/registro', async (req, res) => {
-  const { email, password } = req.body;
+  const { nombre, apellido, pais, esChef, email, password } = req.body;
 
-  // Validaciones básicas
-  if (!email || !password) {
+  if (!nombre || !apellido || !pais || !email || !password) {
     return res.status(400).json({ error: "Todos los campos son obligatorios" });
   }
 
-  // Validar formato de correo electrónico
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(email)) {
     return res.status(400).json({ error: "El email no es válido" });
   }
 
-  // Validar longitud de la contraseña
   if (password.length < 8) {
     return res.status(400).json({ error: "La contraseña debe tener al menos 8 caracteres" });
   }
 
   try {
-    // Verificar si el usuario ya existe
     const usuarioExistente = await User.findOne({ email });
     if (usuarioExistente) {
       return res.status(400).json({ error: "El usuario ya está registrado" });
     }
 
-    // Hashear la contraseña
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Crear nuevo usuario
-    const nuevoUsuario = new User({ email, password: hashedPassword });
-    await nuevoUsuario.save();
+    const nuevoUsuario = new User({
+      nombre,
+      apellido,
+      pais,
+      esChef: Boolean(esChef),
+      email,
+      password: hashedPassword
+    });
 
-    console.log('Usuario registrado exitosamente:', email);
+    await nuevoUsuario.save();
     res.json({ mensaje: "Usuario registrado con éxito" });
   } catch (error) {
-    console.error('Error al registrar el usuario:', error.message);
     res.status(500).json({ error: "Error al registrar usuario: " + error.message });
   }
 });
