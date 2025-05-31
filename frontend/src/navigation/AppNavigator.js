@@ -8,9 +8,8 @@ import LoginScreen from '../screens/LoginScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import HomeScreen from '../screens/HomeScreen';
 import CreateRecipeScreen from '../screens/CreateRecipeScreen';
+import ProfileScreen from '../screens/ProfileScreen';
 
-// Placeholder components (puedes reemplazarlos luego)
-const MyRecipesScreen = () => <></>;
 const GroupsScreen = () => <></>;
 
 const Stack = createNativeStackNavigator();
@@ -20,8 +19,8 @@ function TabsNavigator() {
   return (
     <Tab.Navigator screenOptions={{ headerShown: false }}>
       <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Mis Recetas" component={MyRecipesScreen} />
       <Tab.Screen name="Grupos" component={GroupsScreen} />
+      <Tab.Screen name="Perfil" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }

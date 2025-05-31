@@ -53,34 +53,85 @@ export default function HomeScreen({ navigation }) {
           keyExtractor={(item) => item._id}
           renderItem={renderRecipe}
           contentContainerStyle={{ paddingBottom: 80 }}
+          numColumns={2} // <-- Añadido para mostrar dos columnas
+          columnWrapperStyle={{ justifyContent: 'space-between' }} // Espacio entre columnas
         />
       )}
     </SafeAreaView>
   );
 }
 
+const COLORS = {
+  primary: '#ffffff',
+  secondary: '#f5eaed',
+  tertiary: '#aa6e7f',
+  fourth: '#7b4258',
+  fifth: '#3c2a30'
+};
+
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16, backgroundColor: '#fff' },
-  header: { fontSize: 24, fontWeight: 'bold', marginBottom: 12, color: '#000' },
-  card: {
-    backgroundColor: '#f2f2f2',
-    borderRadius: 10,
-    padding: 12,
-    marginBottom: 16,
+  container: {
+    flex: 1,
+    padding: 18,
+    backgroundColor: COLORS.primary
   },
-  image: { width: '100%', height: 180, borderRadius: 10, marginBottom: 8 },
-  title: { fontSize: 20, fontWeight: 'bold', color: '#000' },
-  description: { fontSize: 14, color: '#444' },
-  category: { fontSize: 12, color: '#888', marginTop: 4 },
-  addButton: {
-    backgroundColor: '#6200EE',
+  header: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    marginBottom: 18,
+    color: COLORS.fifth,
+    letterSpacing: 1
+  },
+  card: {
+    backgroundColor: COLORS.secondary,
+    borderRadius: 12,
     padding: 12,
-    borderRadius: 8,
+    marginBottom: 18,
+    borderWidth: 1,
+    borderColor: COLORS.tertiary,
+    shadowColor: COLORS.fifth,
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 2,
+    flex: 1,
+    marginHorizontal: 4, // Espacio lateral entre tarjetas
+    minWidth: 0 // Para evitar problemas de overflow
+  },
+  image: {
+    width: '100%',
+    aspectRatio: 1.2, // Mantiene la imagen cuadrada y responsiva
+    borderRadius: 10,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: COLORS.tertiary
+  },
+  title: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.fifth,
+    marginBottom: 2
+  },
+  description: {
+    fontSize: 13,
+    color: COLORS.fourth,
+    marginBottom: 2
+  },
+  category: {
+    fontSize: 12,
+    color: COLORS.tertiary,
+    marginTop: 2
+  },
+  addButton: {
+    backgroundColor: COLORS.tertiary,
+    padding: 14,
+    borderRadius: 10,
     alignItems: 'center',
-    marginBottom: 20,
+    marginBottom: 22
   },
   addButtonText: {
-    color: '#fff',
+    color: COLORS.primary,
     fontWeight: 'bold',
+    fontSize: 16
   },
 });

@@ -86,46 +86,62 @@ export default function CreateRecipeScreen({ navigation }) {
   );
 }
 
+const COLORS = {
+  primary: '#ffffff',
+  secondary: '#f5eaed',
+  tertiary: '#aa6e7f',
+  fourth: '#7b4258',
+  fifth: '#3c2a30'
+};
+
 const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
-    backgroundColor: '#fff'
+    backgroundColor: COLORS.primary
   },
   container: {
     flexGrow: 1,
-    padding: 20,
+    padding: 24,
     justifyContent: 'center'
   },
   title: {
-    fontSize: 24,
-    marginBottom: 20,
+    fontSize: 26,
+    marginBottom: 28,
     textAlign: 'center',
-    color: '#000'
+    color: COLORS.fifth,
+    fontWeight: 'bold',
+    letterSpacing: 1
   },
   input: {
     borderWidth: 1,
-    borderColor: '#ccc',
-    backgroundColor: '#f2f2f2',
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 15,
-    color: '#000'
+    borderColor: COLORS.tertiary,
+    backgroundColor: COLORS.secondary,
+    borderRadius: 10,
+    padding: 14,
+    marginBottom: 16,
+    color: COLORS.fifth,
+    fontSize: 16
   },
   imagePicker: {
-    backgroundColor: '#6200EE',
-    padding: 10,
-    borderRadius: 8,
+    backgroundColor: COLORS.secondary,
+    borderWidth: 1,
+    borderColor: COLORS.tertiary,
+    padding: 12,
+    borderRadius: 10,
     alignItems: 'center',
-    marginBottom: 10
+    marginBottom: 12
   },
   imageText: {
-    color: '#fff',
-    fontWeight: 'bold'
+    color: COLORS.tertiary,
+    fontWeight: '600',
+    fontSize: 15
   },
   imagePreview: {
     height: 180,
     width: '100%',
-    borderRadius: 10,
-    marginBottom: 20
+    borderRadius: 12,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: COLORS.tertiary
   }
 });
