@@ -10,21 +10,42 @@ import RegisterScreen from '../screens/RegisterScreen';
 import HomeScreen from '../screens/HomeScreen';
 import CreateRecipeScreen from '../screens/CreateRecipeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import DetailRecipeScreen from '../screens/DetailRecipeScreen';
 
 const GroupsScreen = () => <></>;
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
+// ...existing code...
 function TabsNavigator() {
   return (
-    <Tab.Navigator screenOptions={{ headerShown: false }}>
+    <Tab.Navigator
+      screenOptions={({ route }) => ({
+        headerShown: false,
+        tabBarActiveTintColor: '#aa6e7f',
+        tabBarInactiveTintColor: '#7b4258',
+        tabBarStyle: { backgroundColor: '#fff' },
+        tabBarIcon: ({ color, size }) => {
+          let iconName;
+          if (route.name === 'Home') {
+            iconName = 'home-outline';
+          } else if (route.name === 'Grupos') {
+            iconName = 'restaurant-outline'; // Ícono relacionado con recetas
+          } else if (route.name === 'Perfil') {
+            iconName = 'person-outline';
+          }
+          return <Ionicons name={iconName} size={size} color={color} />;
+        },
+      })}
+    >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Grupos" component={GroupsScreen} />
       <Tab.Screen name="Perfil" component={ProfileScreen} />
     </Tab.Navigator>
   );
 }
+// ...existing code...
 
 export default function AppNavigator() {
   return (
@@ -34,6 +55,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Register" component={RegisterScreen} />
         <Stack.Screen name="Tabs" component={TabsNavigator} />
         <Stack.Screen name="CreateRecipe" component={CreateRecipeScreen} />
+        <Stack.Screen name="DetailRecipe" component={DetailRecipeScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

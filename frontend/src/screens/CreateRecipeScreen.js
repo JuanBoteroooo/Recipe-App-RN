@@ -6,6 +6,7 @@ import {
 import api from '../api/api';
 import * as ImagePicker from 'expo-image-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons'; // <-- Importa Ionicons
 
 export default function CreateRecipeScreen({ navigation }) {
   const [recipe, setRecipe] = useState({
@@ -45,6 +46,12 @@ export default function CreateRecipeScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.safeContainer}>
+      <TouchableOpacity
+        style={styles.backButton}
+        onPress={() => navigation.goBack()}
+      >
+        <Ionicons name="arrow-back" size={28} color="#7b4258" />
+      </TouchableOpacity>
       <ScrollView contentContainerStyle={styles.container}>
         <Text style={styles.title}>Crear Nueva Receta</Text>
 
@@ -98,6 +105,15 @@ const styles = StyleSheet.create({
   safeContainer: {
     flex: 1,
     backgroundColor: COLORS.primary
+  },
+  backButton: {
+    position: 'absolute',
+    top: 30,
+    left: 18,
+    zIndex: 10,
+    backgroundColor: COLORS.secondary,
+    borderRadius: 20,
+    padding: 4
   },
   container: {
     flexGrow: 1,
