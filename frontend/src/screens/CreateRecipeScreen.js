@@ -8,10 +8,11 @@ import * as ImagePicker from 'expo-image-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CreateRecipeScreen({ navigation }) {
-  const [recipe, setRecipe] = useState({
-    title: '',
+  const [form, setForm] = useState({
+    name: '',
     description: '',
-    category: '',
+    ingredients: '',
+    steps: '',
     image: ''
   });
 
@@ -22,23 +23,38 @@ export default function CreateRecipeScreen({ navigation }) {
     });
 
     if (!result.canceled) {
-      setRecipe({ ...recipe, image: result.assets[0].uri });
+      setForm({ ...form, image: result.assets[0].uri });
     }
   };
 
   const handleCreate = async () => {
-    const { title, description, category, image } = recipe;
+    const { name, description, ingredients, steps, image } = form;
 
-    if (!title || !description || !category || !image) {
+    if (!name || !description || !ingredients || !steps || !image) {
       Alert.alert('Error', 'Todos los campos son obligatorios.');
       return;
     }
 
+    const data = new FormData();
+    data.append('name', name);
+    data.append('description', description);
+    data.append('ingredients', ingredients);
+    data.append('steps', steps);
+
+    data.append('image', {
+      uri: image,
+      name: 'recipe.jpg',
+      type: 'image/jpeg'
+    });
+
     try {
-      await api.post('/recipes', recipe);
+      await api.post('/recipes', data, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
       Alert.alert('Éxito', 'Receta creada correctamente');
       navigation.goBack();
     } catch (err) {
+      console.error(err.response || err);
       Alert.alert('Error', err.response?.data?.error || 'No se pudo crear la receta');
     }
   };
@@ -50,32 +66,38 @@ export default function CreateRecipeScreen({ navigation }) {
 
         <TextInput
           style={styles.input}
-          placeholder="Título"
-          value={recipe.title}
-          onChangeText={(text) => setRecipe({ ...recipe, title: text })}
+          placeholder="Nombre"
+          value={form.name}
+          onChangeText={(text) => setForm({ ...form, name: text })}
         />
         <TextInput
           style={styles.input}
           placeholder="Descripción"
-          value={recipe.description}
-          onChangeText={(text) => setRecipe({ ...recipe, description: text })}
+          value={form.description}
+          onChangeText={(text) => setForm({ ...form, description: text })}
         />
         <TextInput
           style={styles.input}
-          placeholder="Categoría"
-          value={recipe.category}
-          onChangeText={(text) => setRecipe({ ...recipe, category: text })}
+          placeholder="Ingredientes (separados por coma)"
+          value={form.ingredients}
+          onChangeText={(text) => setForm({ ...form, ingredients: text })}
+        />
+        <TextInput
+          style={styles.input}
+          placeholder="Pasos (separados por coma)"
+          value={form.steps}
+          onChangeText={(text) => setForm({ ...form, steps: text })}
         />
 
         <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
           <Text style={styles.imageText}>
-            {recipe.image ? 'Cambiar imagen' : 'Seleccionar imagen'}
+            {form.image ? 'Cambiar imagen' : 'Seleccionar imagen'}
           </Text>
         </TouchableOpacity>
 
-        {recipe.image && (
+        {form.image && (
           <Image
-            source={{ uri: recipe.image }}
+            source={{ uri: form.image }}
             style={styles.imagePreview}
           />
         )}
