@@ -26,12 +26,15 @@ export default function HomeScreen({ navigation }) {
   }, []);
 
   const renderRecipe = ({ item }) => (
-    <View style={styles.card}>
+    <TouchableOpacity
+      style={styles.card}
+      onPress={() => navigation.navigate('DetailRecipe', { recipe: item })}
+    >
       <Image source={{ uri: item.image }} style={styles.image} />
       <Text style={styles.title}>{item.title}</Text>
       <Text style={styles.description}>{item.description}</Text>
       <Text style={styles.category}>Categoría: {item.category}</Text>
-    </View>
+    </TouchableOpacity>
   );
 
   return (
