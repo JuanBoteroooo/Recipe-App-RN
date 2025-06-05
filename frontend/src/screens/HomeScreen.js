@@ -4,11 +4,13 @@ import {
   ActivityIndicator, TouchableOpacity
 } from 'react-native';
 import api from '../api/api';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function HomeScreen({ navigation }) {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const insets = useSafeAreaInsets();
 
   const fetchRecipes = async () => {
     try {
@@ -30,10 +32,8 @@ export default function HomeScreen({ navigation }) {
       style={styles.card}
       onPress={() => navigation.navigate('DetailRecipe', { recipe: item })}
     >
-      <Image source={{ uri: item.image }} style={styles.image} />
-      <Text style={styles.title}>{item.title}</Text>
-      <Text style={styles.description}>{item.description}</Text>
-      <Text style={styles.category}>Categoría: {item.category}</Text>
+      <Image source={{ uri: item.image }} style={styles.image} resizeMode="cover" />
+      <Text style={styles.title}>{item.name}</Text>
     </TouchableOpacity>
   );
 
@@ -42,10 +42,17 @@ export default function HomeScreen({ navigation }) {
       <Text style={styles.header}>Recetas Generales</Text>
 
       <TouchableOpacity
-        style={styles.addButton}
+        style={[
+          styles.fab,
+          {
+            top: insets.top + 12,
+            right: insets.right + 18
+          }
+        ]}
         onPress={() => navigation.navigate('CreateRecipe')}
+        activeOpacity={0.8}
       >
-        <Text style={styles.addButtonText}>Nueva Receta</Text>
+        <Ionicons name="add-circle" size={48} color={COLORS.tertiary} />
       </TouchableOpacity>
 
       {loading ? (
@@ -55,9 +62,9 @@ export default function HomeScreen({ navigation }) {
           data={recipes}
           keyExtractor={(item) => item._id}
           renderItem={renderRecipe}
-          contentContainerStyle={{ paddingBottom: 80 }}
-          numColumns={2} // <-- Añadido para mostrar dos columnas
-          columnWrapperStyle={{ justifyContent: 'space-between' }} // Espacio entre columnas
+          contentContainerStyle={{ paddingBottom: 80, paddingTop: 24 }} // Espacio extra arriba
+          numColumns={2}
+          columnWrapperStyle={{ justifyContent: 'space-between' }}
         />
       )}
     </SafeAreaView>
@@ -98,16 +105,17 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 2,
     flex: 1,
-    marginHorizontal: 4, // Espacio lateral entre tarjetas
-    minWidth: 0 // Para evitar problemas de overflow
+    marginHorizontal: 4,
+    minWidth: 0
   },
   image: {
     width: '100%',
-    aspectRatio: 1.2, // Mantiene la imagen cuadrada y responsiva
+    aspectRatio: 1.2,
     borderRadius: 10,
     marginBottom: 10,
     borderWidth: 1,
-    borderColor: COLORS.tertiary
+    borderColor: COLORS.tertiary,
+    backgroundColor: '#eee'
   },
   title: {
     fontSize: 18,
@@ -115,26 +123,16 @@ const styles = StyleSheet.create({
     color: COLORS.fifth,
     marginBottom: 2
   },
-  description: {
-    fontSize: 13,
-    color: COLORS.fourth,
-    marginBottom: 2
-  },
-  category: {
-    fontSize: 12,
-    color: COLORS.tertiary,
-    marginTop: 2
-  },
-  addButton: {
-    backgroundColor: COLORS.tertiary,
-    padding: 14,
-    borderRadius: 10,
-    alignItems: 'center',
-    marginBottom: 22
-  },
-  addButtonText: {
-    color: COLORS.primary,
-    fontWeight: 'bold',
-    fontSize: 16
-  },
+  fab: {
+    position: 'absolute',
+    zIndex: 10,
+    backgroundColor: COLORS.primary,
+    borderRadius: 30,
+    padding: 2,
+    elevation: 4,
+    shadowColor: COLORS.fifth,
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 2 }
+  }
 });
