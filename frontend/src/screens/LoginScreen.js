@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
 import api from '../api/api';
 import { CommonActions } from '@react-navigation/native';
+import AsyncStorage from '@react-native-async-storage/async-storage'; // <-- Importa AsyncStorage
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -9,7 +10,14 @@ export default function LoginScreen({ navigation }) {
 
   const handleLogin = async () => {
     try {
-      const res = await api.post('/login', { email, password });
+      const res = await api.post('/users/login', { email, password });
+
+      console.log("Token recibido:", res.data.token);
+
+      // Guarda el token en AsyncStorage
+      await AsyncStorage.setItem('token', res.data.token);
+      await AsyncStorage.setItem('userId', res.data.userId);
+      await AsyncStorage.setItem('email', email);
 
       navigation.dispatch(
         CommonActions.reset({
@@ -18,7 +26,8 @@ export default function LoginScreen({ navigation }) {
         })
       );
     } catch (err) {
-      Alert.alert('Error', err.response?.data?.error || 'No se pudo iniciar sesión');
+      console.log(err.response?.data);
+      Alert.alert("Error", err.response?.data?.message || "No se pudo iniciar sesión");
     }
   };
 

@@ -1,72 +1,77 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, FlatList, Image, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+import {
+  View, Text, FlatList, Image, StyleSheet,
+  ActivityIndicator, TouchableOpacity, Alert
+} from 'react-native';
 import api from '../api/api';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, useRoute } from '@react-navigation/native';
 
-export default function HomeScreen({ navigation }) {
-  const [recipes, setRecipes] = useState([]);
+export default function GroupDetailScreen({ route, navigation }) {
+  const { groupId } = route.params;
+  const [group, setGroup] = useState(null);
   const [loading, setLoading] = useState(true);
   const insets = useSafeAreaInsets();
 
-  const fetchRecipes = async () => {
+  const fetchGroup = async () => {
     try {
       setLoading(true);
-      const res = await api.get('/recipes');
-      setRecipes(res.data);
-    } catch (error) {
-      console.error('Error al obtener recetas:', error);
+      const res = await api.get(`/groups/${groupId}`);
+      setGroup(res.data);
+    } catch (err) {
+      console.error(err);
+      Alert.alert('Error', 'No se pudo cargar el grupo');
     } finally {
       setLoading(false);
     }
   };
 
-  // Se ejecuta cuando el componente se monta inicialmente
-  useEffect(() => {
-    fetchRecipes();
-  }, []);
-
-  // Se ejecuta cada vez que la pantalla recupera el foco
+  // Hook de focus robusto
   useFocusEffect(
     useCallback(() => {
-      fetchRecipes();
-    }, [])
+      fetchGroup();
+    }, [groupId])
   );
+
+  const handleAddRecipe = () => {
+    navigation.navigate('AddRecipeToGroup', { groupId });
+  };
 
   const renderRecipe = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
       onPress={() => navigation.navigate('DetailRecipe', { recipe: item })}
     >
-      <Image source={{ uri: item.image }} style={styles.image} resizeMode="cover" />
+      <Image source={{ uri: item.image }} style={styles.image} />
       <Text style={styles.title}>{item.name}</Text>
     </TouchableOpacity>
   );
 
+  if (loading) {
+    return (
+      <SafeAreaView style={styles.container}>
+        <ActivityIndicator size="large" color="#6200EE" />
+      </SafeAreaView>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>Recetas Generales</Text>
+      <Text style={styles.header}>{group?.name}</Text>
 
       <TouchableOpacity
-        style={[
-          styles.fab,
-          {
-            top: insets.top + 12,
-            right: insets.right + 18
-          }
-        ]}
-        onPress={() => navigation.navigate('CreateRecipe')}
-        activeOpacity={0.8}
+        style={[styles.fab, { top: insets.top + 12, right: insets.right + 18 }]}
+        onPress={handleAddRecipe}
       >
         <Ionicons name="add-circle" size={48} color={COLORS.tertiary} />
       </TouchableOpacity>
 
-      {loading ? (
-        <ActivityIndicator size="large" color="#6200EE" />
+      {group?.recipes?.length === 0 ? (
+        <Text style={styles.noRecipesText}>Este grupo aún no tiene recetas.</Text>
       ) : (
         <FlatList
-          data={recipes}
+          data={group.recipes}
           keyExtractor={(item) => item._id}
           renderItem={renderRecipe}
           contentContainerStyle={{ paddingBottom: 80, paddingTop: 24 }}
@@ -98,6 +103,11 @@ const styles = StyleSheet.create({
     marginBottom: 18,
     color: COLORS.fifth,
     letterSpacing: 1
+  },
+  noRecipesText: {
+    fontSize: 16,
+    textAlign: 'center',
+    color: COLORS.fifth
   },
   card: {
     backgroundColor: COLORS.secondary,

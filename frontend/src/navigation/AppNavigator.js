@@ -11,13 +11,14 @@ import HomeScreen from '../screens/HomeScreen';
 import CreateRecipeScreen from '../screens/CreateRecipeScreen';
 import ProfileScreen from '../screens/ProfileScreen';
 import DetailRecipeScreen from '../screens/DetailRecipeScreen';
-
-const GroupsScreen = () => <></>;
+import GroupsScreen from '../screens/GroupsScreen';
+import GroupDetailScreen from '../screens/GroupDetailScreen';
+import CreateGroupScreen from '../screens/CreateGroupScreen';
+import AddRecipeToGroupScreen from '../screens/AddRecipeToGroupScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
-// ...existing code...
 function TabsNavigator() {
   return (
     <Tab.Navigator
@@ -31,7 +32,7 @@ function TabsNavigator() {
           if (route.name === 'Home') {
             iconName = 'home-outline';
           } else if (route.name === 'Grupos') {
-            iconName = 'restaurant-outline'; // Ícono relacionado con recetas
+            iconName = 'restaurant-outline';
           } else if (route.name === 'Perfil') {
             iconName = 'person-outline';
           }
@@ -45,7 +46,6 @@ function TabsNavigator() {
     </Tab.Navigator>
   );
 }
-// ...existing code...
 
 export default function AppNavigator() {
   return (
@@ -56,6 +56,9 @@ export default function AppNavigator() {
         <Stack.Screen name="Tabs" component={TabsNavigator} />
         <Stack.Screen name="CreateRecipe" component={CreateRecipeScreen} />
         <Stack.Screen name="DetailRecipe" component={DetailRecipeScreen} />
+        <Stack.Screen name="CreateGroup" component={CreateGroupScreen} />
+        <Stack.Screen name="GroupDetail" component={GroupDetailScreen} />
+        <Stack.Screen name="AddRecipeToGroup" component={AddRecipeToGroupScreen} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -4,7 +4,9 @@ import {
   ScrollView, Alert, Image, TouchableOpacity,
   KeyboardAvoidingView, Platform
 } from 'react-native';
-import api from '../api/api';
+import axios from 'axios';
+import { API_URL } from '@env';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
@@ -64,8 +66,8 @@ export default function CreateRecipeScreen({ navigation }) {
     const data = new FormData();
     data.append('name', name);
     data.append('description', description);
-    data.append('ingredients', JSON.stringify(ingredients));
-    data.append('steps', JSON.stringify(steps));
+    ingredients.forEach((ing) => data.append('ingredients', ing));
+    steps.forEach((step) => data.append('steps', step));
     data.append('image', {
       uri: image,
       name: 'recipe.jpg',
@@ -73,9 +75,16 @@ export default function CreateRecipeScreen({ navigation }) {
     });
 
     try {
-      await api.post('/recipes', data, {
-        headers: { 'Content-Type': 'multipart/form-data' }
+      const token = await AsyncStorage.getItem('token');
+      console.log("Token al crear receta:", token);
+
+      await axios.post(`${API_URL}/recipes`, data, {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          Authorization: `Bearer ${token}`
+        }
       });
+
       Alert.alert('Éxito', 'Receta creada correctamente');
       navigation.goBack();
     } catch (err) {
@@ -115,7 +124,6 @@ export default function CreateRecipeScreen({ navigation }) {
             numberOfLines={4}
           />
 
-          {/* Ingredientes */}
           <Text style={styles.label}>Ingredientes</Text>
           <View style={styles.row}>
             <TextInput
@@ -139,7 +147,6 @@ export default function CreateRecipeScreen({ navigation }) {
             </View>
           ))}
 
-          {/* Pasos */}
           <Text style={styles.label}>Pasos</Text>
           <View style={styles.row}>
             <TextInput
