@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, Alert, StyleSheet, Image } from 'react-native';
 import api from '../api/api';
 import { CommonActions } from '@react-navigation/native';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // <-- Importa AsyncStorage
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function LoginScreen({ navigation }) {
   const [email, setEmail] = useState('');
@@ -11,10 +11,8 @@ export default function LoginScreen({ navigation }) {
   const handleLogin = async () => {
     try {
       const res = await api.post('/users/login', { email, password });
-
       console.log("Token recibido:", res.data.token);
 
-      // Guarda el token en AsyncStorage
       await AsyncStorage.setItem('token', res.data.token);
       await AsyncStorage.setItem('userId', res.data.userId);
       await AsyncStorage.setItem('email', email);
@@ -33,12 +31,14 @@ export default function LoginScreen({ navigation }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Iniciar Sesión</Text>
+      <Image source={require('../../assets/logo.png')} style={styles.logo} />
+      <Text style={styles.title}>GastroShare</Text>
+      <Text style={styles.subtitle}>Bienvenido de nuevo</Text>
 
       <TextInput
         style={styles.input}
         placeholder="Correo"
-        placeholderTextColor="#888"
+        placeholderTextColor={COLORS.textSecondary}
         value={email}
         onChangeText={setEmail}
         autoCapitalize="none"
@@ -46,7 +46,7 @@ export default function LoginScreen({ navigation }) {
       <TextInput
         style={styles.input}
         placeholder="Contraseña"
-        placeholderTextColor="#888"
+        placeholderTextColor={COLORS.textSecondary}
         secureTextEntry
         value={password}
         onChangeText={setPassword}
@@ -63,58 +63,70 @@ export default function LoginScreen({ navigation }) {
   );
 }
 
+// PALETA FINAL
 const COLORS = {
-  primary: '#ffffff',
-  secondary: '#f5eaed',
-  tertiary: '#aa6e7f',
-  fourth: '#7b4258',
-  fifth: '#3c2a30'
+  primary: '#F5F5F5',
+  card: '#FFFFFF',
+  accent: '#FF6B00', // solo para el logo y links
+  textPrimary: '#1F1F1F',
+  textSecondary: '#808080',
+  border: '#E0E0E0',
+  button: '#333333',
+  buttonText: '#FFFFFF',
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    padding: 20,
+    padding: 24,
     backgroundColor: COLORS.primary,
+  },
+  logo: {
+    width: 110,
+    height: 110,
+    alignSelf: 'center',
+    marginBottom: 10,
+    marginTop: 30
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: COLORS.fifth,
-    marginBottom: 10,
+    color: COLORS.button,
     textAlign: 'center',
+    marginBottom: 6,
   },
   subtitle: {
     fontSize: 16,
-    color: COLORS.fifth,
-    marginBottom: 20,
+    color: COLORS.textSecondary,
     textAlign: 'center',
+    marginBottom: 30,
   },
   input: {
-    backgroundColor: COLORS.secondary,
+    backgroundColor: COLORS.card,
     padding: 15,
     borderRadius: 10,
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: '#ccc',
-    color: COLORS.fifth,
+    borderColor: COLORS.border,
+    color: COLORS.textPrimary,
   },
   button: {
-    backgroundColor: COLORS.fourth,
+    backgroundColor: COLORS.button,
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
     marginBottom: 10,
   },
   buttonText: {
-    color: COLORS.primary,
+    color: COLORS.buttonText,
     fontSize: 16,
     fontWeight: 'bold',
   },
   link: {
-    color: COLORS.tertiary,
+    color: COLORS.accent,
     textAlign: 'center',
     marginTop: 20,
+    fontWeight: '500'
   },
 });

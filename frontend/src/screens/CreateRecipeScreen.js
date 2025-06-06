@@ -1,15 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, TextInput, Button, StyleSheet,
-  ScrollView, Alert, Image, TouchableOpacity,
-  KeyboardAvoidingView, Platform
+  ScrollView, Alert, Image, TouchableOpacity, Platform, KeyboardAvoidingView
 } from 'react-native';
-import axios from 'axios';
-import { API_URL } from '@env';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as ImagePicker from 'expo-image-picker';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import api from '../api/api';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 export default function CreateRecipeScreen({ navigation }) {
   const [form, setForm] = useState({
@@ -21,15 +19,30 @@ export default function CreateRecipeScreen({ navigation }) {
   const [ingredients, setIngredients] = useState([]);
   const [stepInput, setStepInput] = useState('');
   const [steps, setSteps] = useState([]);
+  const insets = useSafeAreaInsets();
+
+  useEffect(() => {
+    (async () => {
+      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      if (status !== 'granted') {
+        Alert.alert('Permiso requerido', 'Necesitamos permiso para acceder a la galería');
+      }
+    })();
+  }, []);
 
   const pickImage = async () => {
-    const result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      quality: 1,
-    });
+    try {
+      const result = await ImagePicker.launchImageLibraryAsync({
+        mediaTypes: ImagePicker.MediaTypeOptions.Images,
+        quality: 1,
+      });
 
-    if (!result.canceled) {
-      setForm({ ...form, image: result.assets[0].uri });
+      if (!result.canceled) {
+        setForm({ ...form, image: result.assets[0].uri });
+      }
+    } catch (err) {
+      console.log(err);
+      Alert.alert("Error", "No se pudo seleccionar imagen");
     }
   };
 
@@ -47,17 +60,8 @@ export default function CreateRecipeScreen({ navigation }) {
     }
   };
 
-  const removeIngredient = (idx) => {
-    setIngredients(ingredients.filter((_, i) => i !== idx));
-  };
-
-  const removeStep = (idx) => {
-    setSteps(steps.filter((_, i) => i !== idx));
-  };
-
   const handleCreate = async () => {
     const { name, description, image } = form;
-
     if (!name || !description || ingredients.length === 0 || steps.length === 0 || !image) {
       Alert.alert('Error', 'Todos los campos son obligatorios.');
       return;
@@ -76,15 +80,12 @@ export default function CreateRecipeScreen({ navigation }) {
 
     try {
       const token = await AsyncStorage.getItem('token');
-      console.log("Token al crear receta:", token);
-
-      await axios.post(`${API_URL}/recipes`, data, {
+      await api.post('/recipes', data, {
         headers: {
           'Content-Type': 'multipart/form-data',
-          Authorization: `Bearer ${token}`
+          'Authorization': `Bearer ${token}`
         }
       });
-
       Alert.alert('Éxito', 'Receta creada correctamente');
       navigation.goBack();
     } catch (err) {
@@ -94,37 +95,32 @@ export default function CreateRecipeScreen({ navigation }) {
   };
 
   return (
-    <SafeAreaView style={styles.safeContainer}>
+    <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
-        style={{ flex: 1 }}
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        keyboardVerticalOffset={80}
+        style={{ flex: 1 }}
       >
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={() => navigation.goBack()}
-        >
-          <Ionicons name="arrow-back" size={28} color="#7b4258" />
-        </TouchableOpacity>
-        <ScrollView contentContainerStyle={styles.container}>
-          <Text style={styles.title}>Crear Nueva Receta</Text>
+        <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
+          <Text style={styles.title}>Crear Receta</Text>
 
           <TextInput
             style={styles.input}
             placeholder="Nombre"
+            maxLength={50}
             value={form.name}
             onChangeText={(text) => setForm({ ...form, name: text })}
           />
+
           <TextInput
-            style={styles.descriptionInput}
+            style={[styles.input, styles.textArea]}
             placeholder="Descripción"
+            maxLength={300}
             value={form.description}
             onChangeText={(text) => setForm({ ...form, description: text })}
             multiline
-            numberOfLines={4}
           />
 
-          <Text style={styles.label}>Ingredientes</Text>
+          <Text style={styles.sectionTitle}>Ingredientes</Text>
           <View style={styles.row}>
             <TextInput
               style={[styles.input, { flex: 1 }]}
@@ -139,15 +135,10 @@ export default function CreateRecipeScreen({ navigation }) {
             </TouchableOpacity>
           </View>
           {ingredients.map((ing, idx) => (
-            <View key={idx} style={styles.listItemRow}>
-              <Text style={styles.listItem}>• {ing}</Text>
-              <TouchableOpacity onPress={() => removeIngredient(idx)}>
-                <Ionicons name="close" size={18} color="#aa6e7f" />
-              </TouchableOpacity>
-            </View>
+            <Text key={idx} style={styles.listItem}>• {ing}</Text>
           ))}
 
-          <Text style={styles.label}>Pasos</Text>
+          <Text style={styles.sectionTitle}>Pasos</Text>
           <View style={styles.row}>
             <TextInput
               style={[styles.input, { flex: 1 }]}
@@ -162,28 +153,18 @@ export default function CreateRecipeScreen({ navigation }) {
             </TouchableOpacity>
           </View>
           {steps.map((step, idx) => (
-            <View key={idx} style={styles.listItemRow}>
-              <Text style={styles.listItem}>{idx + 1}. {step}</Text>
-              <TouchableOpacity onPress={() => removeStep(idx)}>
-                <Ionicons name="close" size={18} color="#aa6e7f" />
-              </TouchableOpacity>
-            </View>
+            <Text key={idx} style={styles.listItem}>{idx + 1}. {step}</Text>
           ))}
 
           <TouchableOpacity onPress={pickImage} style={styles.imagePicker}>
-            <Text style={styles.imageText}>
-              {form.image ? 'Cambiar imagen' : 'Seleccionar imagen'}
-            </Text>
+            <Text style={styles.imageText}>{form.image ? "Cambiar Imagen" : "Seleccionar Imagen"}</Text>
           </TouchableOpacity>
 
           {form.image && (
-            <Image
-              source={{ uri: form.image }}
-              style={styles.imagePreview}
-            />
+            <Image source={{ uri: form.image }} style={styles.imagePreview} />
           )}
 
-          <Button title="Guardar Receta" onPress={handleCreate} />
+          <Button title="Guardar Receta" color="#3E3E3E" onPress={handleCreate} />
         </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
@@ -192,66 +173,43 @@ export default function CreateRecipeScreen({ navigation }) {
 
 const COLORS = {
   primary: '#ffffff',
-  secondary: '#f5eaed',
-  tertiary: '#aa6e7f',
-  fourth: '#7b4258',
-  fifth: '#3c2a30'
+  secondary: '#f4f4f4',
+  accent: '#FF6B00',
+  textPrimary: '#222222',
+  textSecondary: '#666666',
+  border: '#dddddd',
+  button: '#3E3E3E'
 };
 
 const styles = StyleSheet.create({
-  safeContainer: {
-    flex: 1,
-    backgroundColor: COLORS.primary
-  },
-  backButton: {
-    position: 'absolute',
-    top: 30,
-    left: 18,
-    zIndex: 10,
-    backgroundColor: COLORS.secondary,
-    borderRadius: 20,
-    padding: 4
-  },
   container: {
-    flexGrow: 1,
-    padding: 24,
-    justifyContent: 'center'
+    flex: 1,
+    backgroundColor: COLORS.primary,
+    padding: 20
   },
   title: {
-    fontSize: 26,
-    marginBottom: 28,
-    textAlign: 'center',
-    color: COLORS.fifth,
+    fontSize: 28,
     fontWeight: 'bold',
-    letterSpacing: 1
+    color: COLORS.textPrimary,
+    marginBottom: 20
   },
   input: {
     borderWidth: 1,
-    borderColor: COLORS.tertiary,
+    borderColor: COLORS.border,
     backgroundColor: COLORS.secondary,
     borderRadius: 10,
     padding: 14,
     marginBottom: 16,
-    color: COLORS.fifth,
-    fontSize: 16
+    color: COLORS.textPrimary
   },
-  descriptionInput: {
-    borderWidth: 1,
-    borderColor: COLORS.tertiary,
-    backgroundColor: COLORS.secondary,
-    borderRadius: 10,
-    padding: 14,
-    marginBottom: 16,
-    color: COLORS.fifth,
-    fontSize: 16,
-    minHeight: 80,
-    textAlignVertical: 'top'
+  textArea: {
+    minHeight: 80
   },
-  label: {
+  sectionTitle: {
     fontWeight: 'bold',
-    color: COLORS.fifth,
-    marginBottom: 4,
-    marginTop: 10
+    fontSize: 16,
+    marginBottom: 10,
+    color: COLORS.textPrimary
   },
   row: {
     flexDirection: 'row',
@@ -259,41 +217,35 @@ const styles = StyleSheet.create({
     marginBottom: 8
   },
   addButton: {
-    backgroundColor: COLORS.tertiary,
+    backgroundColor: COLORS.accent,
     borderRadius: 8,
-    padding: 8,
+    padding: 10,
     marginLeft: 8
   },
-  listItemRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 2
-  },
   listItem: {
-    color: COLORS.fifth,
     marginLeft: 8,
-    marginRight: 4
+    marginBottom: 4,
+    color: COLORS.textPrimary
   },
   imagePicker: {
     backgroundColor: COLORS.secondary,
     borderWidth: 1,
-    borderColor: COLORS.tertiary,
-    padding: 12,
+    borderColor: COLORS.border,
+    padding: 14,
     borderRadius: 10,
     alignItems: 'center',
     marginBottom: 12
   },
   imageText: {
-    color: COLORS.tertiary,
-    fontWeight: '600',
+    color: COLORS.textSecondary,
     fontSize: 15
   },
   imagePreview: {
-    height: 180,
+    height: 200,
     width: '100%',
-    borderRadius: 12,
-    marginBottom: 20,
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: COLORS.tertiary
+    borderColor: COLORS.border,
+    marginBottom: 20
   }
 });

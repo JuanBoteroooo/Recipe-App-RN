@@ -16,6 +16,15 @@ import GroupDetailScreen from '../screens/GroupDetailScreen';
 import CreateGroupScreen from '../screens/CreateGroupScreen';
 import AddRecipeToGroupScreen from '../screens/AddRecipeToGroupScreen';
 
+// Nuevo esquema de colores GastroShare
+const COLORS = {
+  primary: '#ffffff',
+  accent: '#FF6B00',
+  inactive: '#999999',
+  border: '#E5E5E5',
+  background: '#ffffff'
+};
+
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
 
@@ -24,9 +33,20 @@ function TabsNavigator() {
     <Tab.Navigator
       screenOptions={({ route }) => ({
         headerShown: false,
-        tabBarActiveTintColor: '#aa6e7f',
-        tabBarInactiveTintColor: '#7b4258',
-        tabBarStyle: { backgroundColor: '#fff' },
+        tabBarActiveTintColor: COLORS.accent,
+        tabBarInactiveTintColor: COLORS.inactive,
+        tabBarStyle: {
+          backgroundColor: COLORS.background,
+          borderTopColor: COLORS.border,
+          height: 90,
+          paddingBottom: 10,
+          paddingTop: 8,
+          elevation: 10, // sombra para Android
+          shadowColor: '#000', // sombra para iOS
+          shadowOpacity: 0.1,
+          shadowOffset: { width: 0, height: -1 },
+          shadowRadius: 4
+        },
         tabBarIcon: ({ color, size }) => {
           let iconName;
           if (route.name === 'Home') {

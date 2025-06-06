@@ -22,12 +22,10 @@ export default function HomeScreen({ navigation }) {
     }
   };
 
-  // Se ejecuta cuando el componente se monta inicialmente
   useEffect(() => {
     fetchRecipes();
   }, []);
 
-  // Se ejecuta cada vez que la pantalla recupera el foco
   useFocusEffect(
     useCallback(() => {
       fetchRecipes();
@@ -38,9 +36,12 @@ export default function HomeScreen({ navigation }) {
     <TouchableOpacity
       style={styles.card}
       onPress={() => navigation.navigate('DetailRecipe', { recipe: item })}
+      activeOpacity={0.85}
     >
       <Image source={{ uri: item.image }} style={styles.image} resizeMode="cover" />
-      <Text style={styles.title}>{item.name}</Text>
+      <View style={styles.infoContainer}>
+        <Text style={styles.title} numberOfLines={2}>{item.name}</Text>
+      </View>
     </TouchableOpacity>
   );
 
@@ -59,19 +60,17 @@ export default function HomeScreen({ navigation }) {
         onPress={() => navigation.navigate('CreateRecipe')}
         activeOpacity={0.8}
       >
-        <Ionicons name="add-circle" size={48} color={COLORS.tertiary} />
+        <Ionicons name="add-circle" size={48} color={COLORS.accent} />
       </TouchableOpacity>
 
       {loading ? (
-        <ActivityIndicator size="large" color="#6200EE" />
+        <ActivityIndicator size="large" color={COLORS.accent} />
       ) : (
         <FlatList
           data={recipes}
           keyExtractor={(item) => item._id}
           renderItem={renderRecipe}
-          contentContainerStyle={{ paddingBottom: 80, paddingTop: 24 }}
-          numColumns={2}
-          columnWrapperStyle={{ justifyContent: 'space-between' }}
+          contentContainerStyle={{ paddingBottom: 80, paddingTop: 12 }}
         />
       )}
     </SafeAreaView>
@@ -79,56 +78,58 @@ export default function HomeScreen({ navigation }) {
 }
 
 const COLORS = {
-  primary: '#ffffff',
-  secondary: '#f5eaed',
-  tertiary: '#aa6e7f',
-  fourth: '#7b4258',
-  fifth: '#3c2a30'
+  primary: '#FFFFFF',
+  accent: '#FF6B00', 
+  cardBackground: '#F9F9F9',
+  blueDark: '#1B263B',
+  textPrimary: '#1B263B',
+  textSecondary: '#6C757D',
+  border: '#E0E0E0', // Gris claro
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 18,
+    padding: 16,
     backgroundColor: COLORS.primary
   },
   header: {
     fontSize: 26,
     fontWeight: 'bold',
-    marginBottom: 18,
-    color: COLORS.fifth,
+    marginBottom: 12,
+    color: COLORS.blueDark,
     letterSpacing: 1
   },
   card: {
-    backgroundColor: COLORS.secondary,
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 18,
-    borderWidth: 1,
-    borderColor: COLORS.tertiary,
-    shadowColor: COLORS.fifth,
-    shadowOpacity: 0.06,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 2,
-    flex: 1,
-    marginHorizontal: 4,
-    minWidth: 0
+    flexDirection: 'row',
+    backgroundColor: COLORS.cardBackground,
+    borderRadius: 18,
+    overflow: 'hidden',
+    marginBottom: 24,
+    borderWidth: 1.5,                 // << Aquí agregamos el borde
+    borderColor: COLORS.border,      // Gris clarito
+    elevation: 4,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 4 },
   },
   image: {
-    width: '100%',
-    aspectRatio: 1.2,
-    borderRadius: 10,
-    marginBottom: 10,
-    borderWidth: 1,
-    borderColor: COLORS.tertiary,
-    backgroundColor: '#eee'
+    width: 170,
+    height: 130,
+    borderTopLeftRadius: 18,
+    borderBottomLeftRadius: 18
+  },
+  infoContainer: {
+    flex: 1,
+    padding: 16,
+    justifyContent: 'center'
   },
   title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.fifth,
-    marginBottom: 2
+    fontSize: 20,
+    fontWeight: '700',
+    color: COLORS.textPrimary,
+    textAlign: 'center',
   },
   fab: {
     position: 'absolute',
@@ -137,7 +138,7 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     padding: 2,
     elevation: 4,
-    shadowColor: COLORS.fifth,
+    shadowColor: COLORS.textPrimary,
     shadowOpacity: 0.15,
     shadowRadius: 6,
     shadowOffset: { width: 0, height: 2 }

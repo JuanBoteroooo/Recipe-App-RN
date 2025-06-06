@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, FlatList, Image, Alert, ActivityIndicator
 } from 'react-native';
-import COLORS from '../constants/colors';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import api from '../api/api';
@@ -44,7 +43,6 @@ const ProfileScreen = () => {
     }, [])
   );
 
-  // Este useEffect escucha cambios en userId
   useEffect(() => {
     if (userId) {
       fetchMyRecipes(userId);
@@ -85,7 +83,7 @@ const ProfileScreen = () => {
       <View style={styles.cardFooter}>
         <Text style={styles.recipeName}>{item.name}</Text>
         <TouchableOpacity onPress={() => handleDelete(item._id)}>
-          <Ionicons name="trash" size={22} color={COLORS.tertiary} />
+          <Ionicons name="trash" size={22} color={COLORS.accent} />
         </TouchableOpacity>
       </View>
     </TouchableOpacity>
@@ -96,7 +94,7 @@ const ProfileScreen = () => {
       <View style={styles.header}>
         <Text style={styles.title}>Mi Perfil</Text>
         <TouchableOpacity onPress={handleLogout}>
-          <Ionicons name="log-out-outline" size={28} color={COLORS.fourth} />
+          <Ionicons name="log-out-outline" size={28} color={COLORS.accent} />
         </TouchableOpacity>
       </View>
 
@@ -108,12 +106,12 @@ const ProfileScreen = () => {
       <Text style={styles.subtitle}>Mis Recetas</Text>
 
       {loading ? (
-        <ActivityIndicator size="large" color={COLORS.fourth} />
+        <ActivityIndicator size="large" color={COLORS.accent} />
       ) : recipes.length === 0 ? (
         <View style={styles.noRecipesContainer}>
           <Text style={styles.noRecipesText}>No tienes recetas aún</Text>
           <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('CreateRecipe')}>
-            <Ionicons name="add-circle-outline" size={26} color="#fff" />
+            <Ionicons name="add-circle-outline" size={24} color="#fff" />
             <Text style={styles.addButtonText}>Crear mi primera receta</Text>
           </TouchableOpacity>
         </View>
@@ -122,11 +120,21 @@ const ProfileScreen = () => {
           data={recipes}
           keyExtractor={(item) => item._id}
           renderItem={renderRecipe}
-          contentContainerStyle={{ paddingBottom: 80 }}
+          contentContainerStyle={{ paddingBottom: 80, paddingTop: 12 }}
         />
       )}
     </SafeAreaView>
   );
+};
+
+const COLORS = {
+  primary: '#FFFFFF',
+  background: '#FAFAFA',
+  accent: '#FF6B00',     // Naranja para botones, íconos principales
+  secondary: '#F2F2F2',   // Gris clarito
+  textPrimary: '#222222',
+  textSecondary: '#666666',
+  border: '#E0E0E0',
 };
 
 const styles = StyleSheet.create({
@@ -139,44 +147,50 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 16
+    marginBottom: 20
   },
   title: {
-    fontSize: 32,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: COLORS.fifth,
+    color: COLORS.textPrimary,
   },
   infoContainer: {
     marginBottom: 16,
   },
   emailLabel: {
     fontSize: 16,
-    color: COLORS.fifth,
+    color: COLORS.textSecondary,
+    marginBottom: 4
   },
   emailText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.fourth,
+    color: COLORS.textPrimary,
   },
   subtitle: {
-    fontSize: 18,
+    fontSize: 20,
     fontWeight: 'bold',
-    marginVertical: 10,
-    color: COLORS.fifth,
+    marginBottom: 14,
+    color: COLORS.textPrimary,
   },
   recipeCard: {
     backgroundColor: COLORS.secondary,
     borderRadius: 12,
-    padding: 10,
-    marginBottom: 16,
+    padding: 12,
+    marginBottom: 18,
     borderWidth: 1,
-    borderColor: COLORS.tertiary,
+    borderColor: COLORS.border,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 6,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 2,
   },
   image: {
     width: '100%',
-    height: 200,
+    height: 180,
     borderRadius: 10,
-    marginBottom: 8,
+    marginBottom: 10,
   },
   cardFooter: {
     flexDirection: 'row',
@@ -186,7 +200,8 @@ const styles = StyleSheet.create({
   recipeName: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.fifth,
+    color: COLORS.textPrimary,
+    flex: 1
   },
   noRecipesContainer: {
     alignItems: 'center',
@@ -195,13 +210,14 @@ const styles = StyleSheet.create({
   noRecipesText: {
     fontSize: 18,
     marginBottom: 20,
-    color: COLORS.fifth
+    color: COLORS.textSecondary
   },
   addButton: {
     flexDirection: 'row',
-    backgroundColor: COLORS.fourth,
-    padding: 15,
-    borderRadius: 10,
+    backgroundColor: COLORS.accent,
+    paddingVertical: 14,
+    paddingHorizontal: 20,
+    borderRadius: 8,
     alignItems: 'center',
   },
   addButtonText: {

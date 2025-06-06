@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, TouchableOpacity, Alert,
-  StyleSheet, ScrollView, Switch
+  StyleSheet, ScrollView, Switch, Image
 } from 'react-native';
 import api from '../api/api';
 
@@ -32,9 +32,11 @@ export default function RegisterScreen({ navigation }) {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Registro</Text>
+      <Image source={require('../../assets/logo.png')} style={styles.logo} />
+      <Text style={styles.title}>GastroShare</Text>
+      <Text style={styles.subtitle}>Crea tu cuenta</Text>
 
-      {[
+      {[ 
         { name: 'nombre', placeholder: 'Nombre' },
         { name: 'apellido', placeholder: 'Apellido' },
         { name: 'pais', placeholder: 'País' },
@@ -46,7 +48,7 @@ export default function RegisterScreen({ navigation }) {
           key={i}
           style={styles.input}
           placeholder={placeholder}
-          placeholderTextColor="#888"
+          placeholderTextColor={COLORS.textSecondary}
           secureTextEntry={secure}
           autoCapitalize="none"
           value={form[name]}
@@ -59,6 +61,8 @@ export default function RegisterScreen({ navigation }) {
         <Switch
           value={form.esChef}
           onValueChange={(value) => handleChange('esChef', value)}
+          trackColor={{ false: '#ccc', true: COLORS.accent }}
+          thumbColor={form.esChef ? COLORS.accent : '#f4f3f4'}
         />
       </View>
 
@@ -73,52 +77,80 @@ export default function RegisterScreen({ navigation }) {
   );
 }
 
+// PALETA FINAL
 const COLORS = {
-  primary: '#ffffff',
-  secondary: '#f5eaed',
-  tertiary: '#aa6e7f',
-  fourth: '#7b4258',
-  fifth: '#3c2a30'
+  primary: '#F5F5F5',
+  card: '#FFFFFF',
+  accent: '#FF6B00',  // solo para logo y pequeños detalles
+  textPrimary: '#1F1F1F',
+  textSecondary: '#808080',
+  border: '#E0E0E0',
+  button: '#333333',
+  buttonText: '#FFFFFF',
 };
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
+    flexGrow: 1,
     justifyContent: 'center',
-    padding: 20,
+    padding: 24,
     backgroundColor: COLORS.primary,
+  },
+  logo: {
+    width: 110,
+    height: 110,
+    alignSelf: 'center',
+    marginBottom: 10,
+    marginTop: 30
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
-    color: COLORS.fifth,
-    marginBottom: 20,
+    color: COLORS.button,
     textAlign: 'center',
+    marginBottom: 6,
+  },
+  subtitle: {
+    fontSize: 16,
+    color: COLORS.textSecondary,
+    textAlign: 'center',
+    marginBottom: 30,
   },
   input: {
-    backgroundColor: COLORS.secondary,
+    backgroundColor: COLORS.card,
     padding: 15,
     borderRadius: 10,
     marginBottom: 15,
     borderWidth: 1,
-    borderColor: '#ccc',
-    color: COLORS.fifth,
+    borderColor: COLORS.border,
+    color: COLORS.textPrimary,
+  },
+  switchContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 20
+  },
+  switchLabel: {
+    fontSize: 16,
+    color: COLORS.textPrimary,
+    marginRight: 10
   },
   button: {
-    backgroundColor: COLORS.fourth,
+    backgroundColor: COLORS.button,
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',
     marginBottom: 10,
   },
   buttonText: {
-    color: COLORS.primary,
+    color: COLORS.buttonText,
     fontSize: 16,
     fontWeight: 'bold',
   },
   link: {
-    color: COLORS.tertiary,
+    color: COLORS.accent,
     textAlign: 'center',
     marginTop: 20,
+    fontWeight: '500'
   },
 });
