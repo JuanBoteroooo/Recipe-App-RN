@@ -1,127 +1,168 @@
 import React, { useEffect, useState } from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet,
-  FlatList, Image, Alert
+  View, Text, TouchableOpacity, StyleSheet, FlatList, Image, Alert, ActivityIndicator
 } from 'react-native';
 import COLORS from '../constants/colors';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { Ionicons } from '@expo/vector-icons';
-import api from '../api/api';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useNavigation, useFocusEffect } from '@react-navigation/native';
+import api from '../api/api';
+import { Ionicons } from '@expo/vector-icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-export default function ProfileScreen() {
+const ProfileScreen = () => {
   const navigation = useNavigation();
-  const insets = useSafeAreaInsets();
-  const [email, setEmail] = useState('');
   const [userId, setUserId] = useState('');
-  const [myRecipes, setMyRecipes] = useState([]);
-
-  const handleLogout = async () => {
-    await AsyncStorage.clear();
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Login' }],
-    });
-  };
+  const [email, setEmail] = useState('');
+  const [recipes, setRecipes] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const loadUserData = async () => {
+    const storedId = await AsyncStorage.getItem('userId');
     const storedEmail = await AsyncStorage.getItem('email');
-    const storedUserId = await AsyncStorage.getItem('userId');
-    setEmail(storedEmail);
-    setUserId(storedUserId);
+    setUserId(storedId);
+    setEmail(storedEmail || 'No disponible');
   };
 
-  const fetchMyRecipes = async () => {
+  const fetchMyRecipes = async (id) => {
     try {
-      const res = await api.get('/recipes');
-      const myRecipesFiltered = res.data.filter(recipe => recipe.createdBy === userId);
-      setMyRecipes(myRecipesFiltered);
+      const res = await api.get(`/recipes`);
+      const userRecipes = res.data.filter(recipe => recipe.createdBy === id);
+      setRecipes(userRecipes);
     } catch (error) {
-      console.error('Error al obtener recetas personales:', error);
-      Alert.alert('Error', 'No se pudieron cargar tus recetas.');
+      console.error('Error al obtener recetas:', error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useFocusEffect(
     React.useCallback(() => {
-      loadUserData().then(() => fetchMyRecipes());
-    }, [userId])
+      const loadAndFetch = async () => {
+        await loadUserData();
+      };
+      loadAndFetch();
+    }, [])
   );
 
+  // Este useEffect escucha cambios en userId
+  useEffect(() => {
+    if (userId) {
+      fetchMyRecipes(userId);
+    }
+  }, [userId]);
+
+  const handleDelete = async (id) => {
+    Alert.alert("Confirmar", "¿Estás seguro que deseas eliminar esta receta?", [
+      { text: "Cancelar" },
+      {
+        text: "Eliminar", onPress: async () => {
+          try {
+            await api.delete(`/recipes/${id}`);
+            fetchMyRecipes(userId);
+          } catch (err) {
+            console.error(err);
+            Alert.alert("Error", "No se pudo eliminar");
+          }
+        }
+      }
+    ]);
+  };
+
+  const handleLogout = async () => {
+    await AsyncStorage.clear();
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Login' }]
+    });
+  };
+
   const renderRecipe = ({ item }) => (
-    <View style={styles.recipeCard}>
+    <TouchableOpacity
+      style={styles.recipeCard}
+      onPress={() => navigation.navigate('DetailRecipe', { recipe: item })}
+    >
       <Image source={{ uri: item.image }} style={styles.image} />
-      <Text style={styles.recipeName}>{item.name}</Text>
-    </View>
+      <View style={styles.cardFooter}>
+        <Text style={styles.recipeName}>{item.name}</Text>
+        <TouchableOpacity onPress={() => handleDelete(item._id)}>
+          <Ionicons name="trash" size={22} color={COLORS.tertiary} />
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
   );
 
   return (
-    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
-      <TouchableOpacity
-        style={[styles.logoutButton, { top: insets.top + 10, right: 20 }]}
-        onPress={handleLogout}
-      >
-        <Ionicons name="exit-outline" size={30} color={COLORS.fourth} />
-      </TouchableOpacity>
-
-      <Text style={styles.title}>Mi Perfil</Text>
-
-      <View style={styles.infoContainer}>
-        <Text style={styles.label}>Correo electrónico:</Text>
-        <Text style={styles.email}>{email}</Text>
+    <SafeAreaView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Mi Perfil</Text>
+        <TouchableOpacity onPress={handleLogout}>
+          <Ionicons name="log-out-outline" size={28} color={COLORS.fourth} />
+        </TouchableOpacity>
       </View>
 
-      <Text style={styles.subtitle}>Mis Recetas:</Text>
+      <View style={styles.infoContainer}>
+        <Text style={styles.emailLabel}>Correo:</Text>
+        <Text style={styles.emailText}>{email}</Text>
+      </View>
 
-      <FlatList
-        data={myRecipes}
-        keyExtractor={(item) => item._id}
-        renderItem={renderRecipe}
-        numColumns={2}
-        columnWrapperStyle={{ justifyContent: 'space-between' }}
-        contentContainerStyle={{ paddingBottom: 20 }}
-      />
+      <Text style={styles.subtitle}>Mis Recetas</Text>
+
+      {loading ? (
+        <ActivityIndicator size="large" color={COLORS.fourth} />
+      ) : recipes.length === 0 ? (
+        <View style={styles.noRecipesContainer}>
+          <Text style={styles.noRecipesText}>No tienes recetas aún</Text>
+          <TouchableOpacity style={styles.addButton} onPress={() => navigation.navigate('CreateRecipe')}>
+            <Ionicons name="add-circle-outline" size={26} color="#fff" />
+            <Text style={styles.addButtonText}>Crear mi primera receta</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <FlatList
+          data={recipes}
+          keyExtractor={(item) => item._id}
+          renderItem={renderRecipe}
+          contentContainerStyle={{ paddingBottom: 80 }}
+        />
+      )}
     </SafeAreaView>
   );
-}
+};
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 20,
+    padding: 20,
     backgroundColor: COLORS.primary,
   },
-  logoutButton: {
-    position: 'absolute',
-    zIndex: 10,
+  header: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16
   },
   title: {
     fontSize: 32,
     fontWeight: 'bold',
     color: COLORS.fifth,
-    marginBottom: 10,
-    textAlign: 'center',
   },
   infoContainer: {
-    marginBottom: 20,
-    alignItems: 'center',
+    marginBottom: 16,
   },
-  label: {
-    fontSize: 18,
+  emailLabel: {
+    fontSize: 16,
     color: COLORS.fifth,
-    marginBottom: 5,
   },
-  email: {
-    fontSize: 20,
+  emailText: {
+    fontSize: 18,
     fontWeight: 'bold',
     color: COLORS.fourth,
   },
   subtitle: {
-    fontSize: 22,
+    fontSize: 18,
     fontWeight: 'bold',
-    color: COLORS.fifth,
     marginVertical: 10,
+    color: COLORS.fifth,
   },
   recipeCard: {
     backgroundColor: COLORS.secondary,
@@ -130,19 +171,45 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderWidth: 1,
     borderColor: COLORS.tertiary,
-    flex: 1,
-    marginHorizontal: 4,
   },
   image: {
     width: '100%',
-    aspectRatio: 1.2,
+    height: 200,
     borderRadius: 10,
     marginBottom: 8,
   },
+  cardFooter: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
   recipeName: {
-    fontSize: 16,
+    fontSize: 18,
     fontWeight: 'bold',
     color: COLORS.fifth,
-    textAlign: 'center',
+  },
+  noRecipesContainer: {
+    alignItems: 'center',
+    marginTop: 50,
+  },
+  noRecipesText: {
+    fontSize: 18,
+    marginBottom: 20,
+    color: COLORS.fifth
+  },
+  addButton: {
+    flexDirection: 'row',
+    backgroundColor: COLORS.fourth,
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  addButtonText: {
+    color: '#fff',
+    marginLeft: 10,
+    fontWeight: 'bold',
+    fontSize: 16
   }
 });
+
+export default ProfileScreen;

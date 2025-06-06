@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View, Text, FlatList, Image, StyleSheet,
   ActivityIndicator, TouchableOpacity, Alert
@@ -6,7 +6,6 @@ import {
 import api from '../api/api';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
-import { useFocusEffect, useRoute } from '@react-navigation/native';
 
 export default function GroupDetailScreen({ route, navigation }) {
   const { groupId } = route.params;
@@ -16,68 +15,70 @@ export default function GroupDetailScreen({ route, navigation }) {
 
   const fetchGroup = async () => {
     try {
-      setLoading(true);
       const res = await api.get(`/groups/${groupId}`);
       setGroup(res.data);
-    } catch (err) {
-      console.error(err);
-      Alert.alert('Error', 'No se pudo cargar el grupo');
+    } catch (error) {
+      console.error('Error al obtener grupo:', error);
     } finally {
       setLoading(false);
     }
   };
 
-  // Hook de focus robusto
-  useFocusEffect(
-    useCallback(() => {
-      fetchGroup();
-    }, [groupId])
-  );
-
-  const handleAddRecipe = () => {
-    navigation.navigate('AddRecipeToGroup', { groupId });
-  };
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', fetchGroup);
+    return unsubscribe;
+  }, [navigation]);
 
   const renderRecipe = ({ item }) => (
     <TouchableOpacity
       style={styles.card}
       onPress={() => navigation.navigate('DetailRecipe', { recipe: item })}
     >
-      <Image source={{ uri: item.image }} style={styles.image} />
+      <Image source={{ uri: item.image }} style={styles.image} resizeMode="cover" />
       <Text style={styles.title}>{item.name}</Text>
     </TouchableOpacity>
   );
 
-  if (loading) {
-    return (
-      <SafeAreaView style={styles.container}>
-        <ActivityIndicator size="large" color="#6200EE" />
-      </SafeAreaView>
-    );
-  }
-
   return (
     <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>{group?.name}</Text>
-
+      {/* Botón de regreso */}
       <TouchableOpacity
-        style={[styles.fab, { top: insets.top + 12, right: insets.right + 18 }]}
-        onPress={handleAddRecipe}
+        style={[styles.backButton, { top: insets.top + 10 }]}
+        onPress={() => navigation.goBack()}
       >
-        <Ionicons name="add-circle" size={48} color={COLORS.tertiary} />
+        <Ionicons name="arrow-back" size={28} color="#7b4258" />
       </TouchableOpacity>
 
-      {group?.recipes?.length === 0 ? (
-        <Text style={styles.noRecipesText}>Este grupo aún no tiene recetas.</Text>
+      {loading ? (
+        <ActivityIndicator size="large" color="#6200EE" />
       ) : (
-        <FlatList
-          data={group.recipes}
-          keyExtractor={(item) => item._id}
-          renderItem={renderRecipe}
-          contentContainerStyle={{ paddingBottom: 80, paddingTop: 24 }}
-          numColumns={2}
-          columnWrapperStyle={{ justifyContent: 'space-between' }}
-        />
+        <>
+          {/* Agregamos separación extra debajo del botón */}
+          <View style={{ marginTop: insets.top + 20 }}>
+            <Text style={styles.header}>{group?.name}</Text>
+          </View>
+
+          {group?.recipes?.length === 0 ? (
+            <Text style={styles.emptyText}>Este grupo no tiene recetas todavía.</Text>
+          ) : (
+            <FlatList
+              data={group.recipes}
+              keyExtractor={(item) => item._id}
+              renderItem={renderRecipe}
+              numColumns={2}
+              columnWrapperStyle={{ justifyContent: 'space-between' }}
+              contentContainerStyle={{ paddingBottom: 80, paddingTop: 12 }}
+            />
+          )}
+
+          <TouchableOpacity
+            style={[styles.fab, { top: insets.top + 12, right: insets.right + 18 }]}
+            onPress={() => navigation.navigate('AddRecipeToGroup', { groupId })}
+            activeOpacity={0.8}
+          >
+            <Ionicons name="add-circle" size={48} color="#aa6e7f" />
+          </TouchableOpacity>
+        </>
       )}
     </SafeAreaView>
   );
@@ -97,17 +98,25 @@ const styles = StyleSheet.create({
     padding: 18,
     backgroundColor: COLORS.primary
   },
+  backButton: {
+    position: 'absolute',
+    left: 18,
+    zIndex: 10,
+    backgroundColor: COLORS.secondary,
+    borderRadius: 20,
+    padding: 4
+  },
   header: {
     fontSize: 26,
     fontWeight: 'bold',
     marginBottom: 18,
     color: COLORS.fifth,
-    letterSpacing: 1
   },
-  noRecipesText: {
+  emptyText: {
     fontSize: 16,
     textAlign: 'center',
-    color: COLORS.fifth
+    marginTop: 60,
+    color: COLORS.tertiary
   },
   card: {
     backgroundColor: COLORS.secondary,
