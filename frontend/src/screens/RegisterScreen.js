@@ -5,6 +5,9 @@ import {
 } from 'react-native';
 import api from '../api/api';
 
+import { assets } from '../../assets/assets';
+
+
 export default function RegisterScreen({ navigation }) {
   const [form, setForm] = useState({
     nombre: '', apellido: '', pais: '',
@@ -32,7 +35,7 @@ export default function RegisterScreen({ navigation }) {
 
   return (
     <ScrollView contentContainerStyle={styles.container}>
-      <Image source={require('../../assets/logo.png')} style={styles.logo} />
+      <Image source={{ uri: assets.logoImage }} style={styles.logo} />
       <Text style={styles.title}>GastroShare</Text>
       <Text style={styles.subtitle}>Crea tu cuenta</Text>
 
@@ -97,8 +100,8 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.primary,
   },
   logo: {
-    width: 110,
-    height: 110,
+    width: 150,
+    height: 150,
     alignSelf: 'center',
     marginBottom: 10,
     marginTop: 30
