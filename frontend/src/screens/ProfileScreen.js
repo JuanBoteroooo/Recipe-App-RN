@@ -8,8 +8,6 @@ import api from '../api/api';
 import { Ionicons } from '@expo/vector-icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
-import isoLogo from '../../assets/iso.png';
-
 const ProfileScreen = () => {
   const navigation = useNavigation();
   const [userId, setUserId] = useState('');
@@ -93,14 +91,11 @@ const ProfileScreen = () => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.headerBg}>
-        <View style={styles.headerRow}>
-          <Image source={isoLogo} style={styles.headerLogo} />
-          <Text style={styles.title}>Mi Perfil</Text>
-          <TouchableOpacity onPress={handleLogout}>
-            <Ionicons name="log-out-outline" size={28} color={COLORS.accent} />
-          </TouchableOpacity>
-        </View>
+      <View style={styles.header}>
+        <Text style={styles.title}>Mi Perfil</Text>
+        <TouchableOpacity onPress={handleLogout}>
+          <Ionicons name="log-out-outline" size={28} color={COLORS.accent} />
+        </TouchableOpacity>
       </View>
 
       <View style={styles.infoContainer}>
@@ -133,66 +128,31 @@ const ProfileScreen = () => {
 };
 
 const COLORS = {
-  primary: '#F9FAFB',
+  primary: '#FFFFFF',
   background: '#FAFAFA',
-  accent: '#FF6B00',
-  secondary: '#F2F2F2',
+  accent: '#FF6B00',     // Naranja para botones, íconos principales
+  secondary: '#F2F2F2',   // Gris clarito
   textPrimary: '#222222',
   textSecondary: '#666666',
   border: '#E0E0E0',
-  headerBg: '#FFF3E6',
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 20,
-    backgroundColor: '#FFFDF9'
+    backgroundColor: COLORS.primary,
   },
-  headerBg: {
-    backgroundColor: COLORS.headerBg,
-    borderBottomLeftRadius: 18,
-    borderBottomRightRadius: 18,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingBottom: 8,   
-    paddingTop: 8,      
-    marginTop: 5,      
-    marginBottom: 8,
-    shadowColor: '#fff',
-    shadowOffset: { width: -2, height: -2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 4,
-    elevation: 4,
-    shadowColor: '#d1d9e6',
-    shadowOffset: { width: 3, height: 3 },
-    shadowOpacity: 0.4,
-    shadowRadius: 6,
-    borderWidth: 1,
-    borderColor: '#f5e9da',
-  },
-  headerRow: {
+  header: {
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: 0,
-    marginBottom: 0,
-    paddingHorizontal: 2,
-    minHeight: 48, // Altura mínima para el header
-  },
-  headerLogo: {
-    width: 40,
-    height: 40,
-    marginRight: 8,
-    resizeMode: 'contain'
+    marginBottom: 20
   },
   title: {
-    fontSize: 22,
+    fontSize: 28,
     fontWeight: 'bold',
-    color: COLORS.accent,
-    flex: 1,
-    textShadowColor: '#fff2',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 1,
+    color: COLORS.textPrimary,
   },
   infoContainer: {
     marginBottom: 16,

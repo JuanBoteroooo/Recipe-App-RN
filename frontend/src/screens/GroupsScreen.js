@@ -4,8 +4,6 @@ import api from '../api/api';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Ionicons } from '@expo/vector-icons';
 
-import isoLogo from '../../assets/iso.png';
-
 export default function GroupsScreen({ navigation }) {
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -44,19 +42,15 @@ export default function GroupsScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      <View style={styles.headerBg}>
-        <View style={styles.headerRow}>
-          <Image source={isoLogo} style={styles.headerLogo} />
-          <Text style={styles.header}>Mis Grupos</Text>
-          <TouchableOpacity
-            style={styles.headerAddButton}
-            onPress={() => navigation.navigate('CreateGroup')}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="add-circle" size={36} color={COLORS.accent} />
-          </TouchableOpacity>
-        </View>
-      </View>
+      <Text style={styles.header}>Mis Grupos</Text>
+
+      <TouchableOpacity
+        style={[styles.fab, { top: insets.top + 12, right: insets.right + 18 }]}
+        onPress={() => navigation.navigate('CreateGroup')}
+        activeOpacity={0.8}
+      >
+        <Ionicons name="add-circle" size={48} color={COLORS.accent} />
+      </TouchableOpacity>
 
       {loading ? (
         <ActivityIndicator size="large" color={COLORS.accent} />
@@ -74,73 +68,26 @@ export default function GroupsScreen({ navigation }) {
 
 const COLORS = {
   primary: '#F9FAFB',
-  accent: '#FF6B00',
+  accent: '#FF6B00',   // Naranja del logo
   secondary: '#FFFFFF',
   textPrimary: '#111827',
   textSecondary: '#6B7280',
   border: '#E5E7EB',
   shadow: '#000000',
-  headerBg: '#FFF3E6',
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: '#FFFDF9'
-  },
-  headerBg: {
-    backgroundColor: COLORS.headerBg,
-    borderBottomLeftRadius: 18,
-    borderBottomRightRadius: 18,
-    borderTopLeftRadius: 24,
-    borderTopRightRadius: 24,
-    paddingBottom: 8,   
-    paddingTop: 8,      
-    marginTop: 5,      
-    marginBottom: 8,
-    shadowColor: '#fff',
-    shadowOffset: { width: -2, height: -2 },
-    shadowOpacity: 0.5,
-    shadowRadius: 4,
-    elevation: 4,
-    shadowColor: '#d1d9e6',
-    shadowOffset: { width: 3, height: 3 },
-    shadowOpacity: 0.4,
-    shadowRadius: 6,
-    borderWidth: 1,
-    borderColor: '#f5e9da',
-  },
-  headerRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 0,
-    marginBottom: 0,
-    paddingHorizontal: 2,
-    minHeight: 48,
-  },
-  headerLogo: {
-    width: 40,
-    height: 40,
-    marginRight: 8,
-    resizeMode: 'contain'
+    backgroundColor: COLORS.primary
   },
   header: {
-    fontSize: 22,
+    fontSize: 26,
     fontWeight: 'bold',
-    color: COLORS.accent,
-    letterSpacing: 0.5,
-    textShadowColor: '#fff2',
-    textShadowOffset: { width: 0, height: 1 },
-    textShadowRadius: 1,
-    flex: 1,
-  },
-  headerAddButton: {
-    marginLeft: 6,
-    marginRight: 8, 
-    padding: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
+    marginBottom: 16,
+    color: COLORS.textPrimary,
+    letterSpacing: 1
   },
   card: {
     flexDirection: 'row',

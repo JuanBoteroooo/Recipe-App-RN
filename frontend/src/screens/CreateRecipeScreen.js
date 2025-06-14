@@ -96,15 +96,11 @@ export default function CreateRecipeScreen({ navigation }) {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Botón de back idéntico al de DetailRecipeScreen */}
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Ionicons name="arrow-back" size={28} color="#333333" />
-      </TouchableOpacity>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
       >
-        <ScrollView contentContainerStyle={{ paddingBottom: 40, paddingTop: 40 }}>
+        <ScrollView contentContainerStyle={{ paddingBottom: 40 }}>
           <Text style={styles.title}>Crear Receta</Text>
 
           <TextInput
@@ -190,19 +186,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: COLORS.primary,
     padding: 20
-  },
-    backButton: {
-    position: 'absolute',
-    top: 30,
-    left: 18,
-    zIndex: 10,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 20,
-    padding: 6,
-    shadowColor: '#333333',
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
   },
   title: {
     fontSize: 28,

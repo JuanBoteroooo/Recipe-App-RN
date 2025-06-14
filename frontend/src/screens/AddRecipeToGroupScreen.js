@@ -60,10 +60,7 @@ export default function AddRecipeToGroupScreen({ route, navigation }) {
   );
 
   return (
-    <SafeAreaView style={[styles.container, { paddingTop: 40 }]}>
-      <TouchableOpacity style={styles.backButton} onPress={() => navigation.goBack()}>
-        <Ionicons name="arrow-back" size={28} color={COLORS.darkGrey} />
-      </TouchableOpacity>
+    <SafeAreaView style={[styles.container, { paddingTop: insets.top }]}>
       <Text style={styles.title}>Agregar receta al grupo</Text>
 
       {loading ? (
@@ -86,19 +83,6 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 20,
     backgroundColor: COLORS.background
-  },
-  backButton: {
-    position: 'absolute',
-    top: 30,
-    left: 18,
-    zIndex: 10,
-    backgroundColor: COLORS.cardBackground,
-    borderRadius: 20,
-    padding: 6,
-    shadowColor: COLORS.darkGrey,
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    shadowOffset: { width: 0, height: 2 },
   },
   title: {
     fontSize: 26,
