@@ -25,14 +25,10 @@ export default function HomeScreen({ navigation }) {
   };
 
   useEffect(() => {
-    fetchRecipes();
-  }, []);
-
-  useFocusEffect(
-    useCallback(() => {
-      fetchRecipes();
-    }, [])
-  );
+    if (route.params?.newRecipeCreated) {
+      fetchRecipes(); // tu función de recarga
+    }
+  }, [route.params?.newRecipeCreated]);
 
   const renderRecipe = ({ item }) => (
     <TouchableOpacity
