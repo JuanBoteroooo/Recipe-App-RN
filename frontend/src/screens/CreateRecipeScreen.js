@@ -87,7 +87,10 @@ export default function CreateRecipeScreen({ navigation }) {
         }
       });
       Alert.alert('Éxito', 'Receta creada correctamente');
-      navigation.navigate('Home', { newRecipeCreated: true });
+      navigation.navigate('Tabs', {
+        screen: 'Home',
+        params: { newRecipeCreated: true }
+      });      
     } catch (err) {
       console.error(err.response || err);
       Alert.alert('Error', err.response?.data?.error || 'No se pudo crear la receta');

@@ -5,7 +5,7 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { Ionicons } from '@expo/vector-icons';
 import { useFocusEffect } from '@react-navigation/native';
 
-export default function HomeScreen({ navigation }) {
+export default function HomeScreen({ navigation, route }) {
   const [recipes, setRecipes] = useState([]);
   const [loading, setLoading] = useState(true);
   const insets = useSafeAreaInsets();
@@ -23,10 +23,14 @@ export default function HomeScreen({ navigation }) {
   };
 
   useEffect(() => {
-    if (route.params?.newRecipeCreated) {
-      fetchRecipes(); // tu función de recarga
-    }
-  }, [route.params?.newRecipeCreated]);
+    fetchRecipes();
+  }, []);
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchRecipes();
+    }, [])
+  );
 
   const renderRecipe = ({ item }) => (
     <TouchableOpacity
@@ -56,11 +60,11 @@ export default function HomeScreen({ navigation }) {
         onPress={() => navigation.navigate('CreateRecipe')}
         activeOpacity={0.8}
       >
-        <Ionicons name="add-circle" size={48} color={COLORS.accent} />
+        <Ionicons name="add-circle" size={48} color={COLORS.primaryAccent} />
       </TouchableOpacity>
 
       {loading ? (
-        <ActivityIndicator size="large" color={COLORS.accent} />
+        <ActivityIndicator size="large" color={COLORS.primaryAccent} />
       ) : (
         <FlatList
           data={recipes}

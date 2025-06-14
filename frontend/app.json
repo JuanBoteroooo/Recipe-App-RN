@@ -20,10 +20,16 @@
         "foregroundImage": "./assets/iso.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.juanbotero.GastroShare"
     },
     "web": {
       "favicon": "./assets/iso.png"
+    },
+    "extra": {
+      "eas": {
+        "projectId": "f5674029-4dbc-46c6-89ec-8acbe10505e9"
+      }
     }
   }
 }
